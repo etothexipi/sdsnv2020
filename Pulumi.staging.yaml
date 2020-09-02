@@ -1,0 +1,4 @@
+config:
+  aws-py-analytics:ENV: staging
+  aws-py-analytics:region: us-east-1
+  aws-py-analytics:subnetId: subnet-1b311e35

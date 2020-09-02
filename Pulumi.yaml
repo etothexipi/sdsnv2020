@@ -1,0 +1,6 @@
+name: aws-py-analytics
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: Pulumi program for managing our analytics infra on aws
