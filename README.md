@@ -32,6 +32,11 @@ Install Pulumi and venv in repo root.
  Setup aws config 
 > `aws configure`
 
+(development) Setup JupyterLab server for wrangling and exploratory analysis
+> `sudo yum install gcc python-devel`
+> `pip3 install --user jupyterlab`
+> see: https://docs.aws.amazon.com/dlami/latest/devguide/setup-jupyter-config.html for remaining steps
+
 (development) Running Docker daemon and give permission to Pulumi (ec2-user)
 > `sudo dockerd &`
 > `sudo setfacl --modify user:ec2-user:rw /var/run/docker.sock`
