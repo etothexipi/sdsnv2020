@@ -23,10 +23,15 @@ Pull/clone this repo
 
 Install Pulumi and venv in repo root. 
 > `curl -fsSL https://get.pulumi.com | sh`
+
 > `cd ./sdsnv2020/`
+
 > `python3 -m venv venv/`
+
 > `source venv/bin/activate`
+
 > `pip install -r requirements.txt`
+
 > `deactivate`
 
  Setup aws config 
@@ -41,12 +46,16 @@ Install Pulumi and venv in repo root.
 
 (development) Running Docker daemon and give permission to Pulumi (ec2-user)
 > `sudo dockerd &`
+
 > `sudo setfacl --modify user:ec2-user:rw /var/run/docker.sock`
 
 (development) Setup virtual environment within each project folder for local development. Simulates pip install inside container.
 > `python3 -m venv venv/`
+
 > `source venv/bin/activate`
+
 > `pip install -r requirements.txt`
+
 > `deactivate`
 
 (development) Run/Update Pulumi stack, build/update containers, etc.
