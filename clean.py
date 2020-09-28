@@ -1,57 +1,62 @@
-import newspaper
+import logging
 import pandas as pd
-import pickle
+import json
+from datetime import datetime, timedelta
+import io
+import boto3
+import os
 
-theonion = newspaper.build('https://theonion.com/')
+
+
+# Initialize S3 Bucket
+S3BUCKETNAME = os.environ['S3BUCKETNAME']
+s3 = boto3.client('s3')
 
 
 
-df = pd.DataFrame({})
+# Try to pull parameters from environment (for container usage)
+# Else define defaults 
+if all(param in ['DATE_PULLED', 'QUERY_PULLED'] for param in os.environ) is True:
+    DATE_PULLED = os.environ['DATE_PULLED']
+    QUERY_PULLED = os.environ['QUERY_PULLED']
 
-for article in theonion.articles[:30]:
-    url = article.url
-    print(url)
-    article = newspaper.Article(url)
-    article.download()
-    article.parse()
+else:
+    print(f'WARNING: Job params not all defined in environment. Running defaults')
+    yesterday = datetime.today() + timedelta(days=-1)
+    DATE_PULLED = yesterday.strftime('%Y-%m-%d')
+    QUERY_PULLED = 'cryptocurrency'
 
-    date = article.publish_date
-    blob = article.text
 
-    if article.authors[0]:
-        author1 = article.authors[0]
-        if article.authors[1]:
-            author2 = article.authors[1]
-        else:
-            author2 = np.nan()
+
+# Get raw data from pull.py output
+try:
+    response = s3.list_objects_v2(Bucket=S3BUCKETNAME, MaxKeys=1000, Prefix=f'newsapi/pull/{DATE_PULLED}/{QUERY_PULLED}-')
+
+    if response['ResponseMetadata']['HTTPStatusCode'] == 200 and response['KeyCount'] > 0:
+        
+        for item in range(response['KeyCount']):
+
+            # Convert each page to dataframe
+            key = response['Contents'][item]['Key']
+            data = s3.get_object(Bucket=S3BUCKETNAME, Key=key)
+            data = data['Body']
+            data = json.load(data)
+            data = data['articles']
+            df = pd.json_normalize(data)
+            print(df.info(), df.head())
+            print(f'SUCCESS: convert {key} from {S3BUCKETNAME} to dataframe')
+
     else:
-        author1 = np.nan()
-        author2 = np.nan()
+        logging.exception('')
+        print(response)
 
-    article.nlp()
+except:
+    logging.exception('')
+    print(response)
+    quit()
 
-    if article.keywords[0]:
-        keyword1 = article.keywords[0]
-        if article.keywords[1]:
-            keyword2 = article.keywords[1]
-            if article.keywords[2]:
-                keyword3 = article.keywords[2]
-            else:
-                keyword3 = np.nan()
-        else:
-            keyword2 = np.nan()
-            keyword3 = np.nan()
-    else:
-        keyword1 = np.nan()
-        keyword2 = np.nan()
-        keyword3 = np.nan()
 
-    df = df.append({'date'    : date,
-                    'author1' : author1,
-                    'author2' : author2,
-                    'blob'    : blob,
-                    'keyword1': keyword1,
-                    'keyword2': keyword2,
-                    'keyword3': keyword3})
-    
-print(df)    
+# Final logging
+logging.exception('')
+print(f'Start pull: {DATE_PULLED}')
+print(f'Query term: {QUERY_PULLED}')
