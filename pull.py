@@ -44,6 +44,10 @@ for PAGEPULL in range(1,101):
         page=PAGEPULL
     )
 
+    # Break when no articles left
+    if news_pull['articles'] == []:
+        break
+
     # Put JSON as string to S3
     json_text = json.dumps(news_pull)
     object_key = f'newsapi/pull/{DATE_PULLED}/{QUERY_PULLED}-{PAGEPULL:04}.json'
@@ -55,10 +59,6 @@ for PAGEPULL in range(1,101):
         logging.exception('')
         print(response)
         quit()
-
-    # Break when no articles left
-    if news_pull['articles'] == []:
-        break
 
 
 

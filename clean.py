@@ -1,6 +1,8 @@
 import logging
+import re
 import pandas as pd
 import json
+from textblob import TextBlob
 from datetime import datetime, timedelta
 import io
 import boto3
@@ -34,6 +36,8 @@ try:
 
     if response['ResponseMetadata']['HTTPStatusCode'] == 200 and response['KeyCount'] > 0:
         
+        df_all = pd.DataFrame([])
+
         for item in range(response['KeyCount']):
 
             # Convert each page to dataframe
@@ -43,8 +47,20 @@ try:
             data = json.load(data)
             data = data['articles']
             df = pd.json_normalize(data)
+            df = df[['title','description','publishedAt']]
+
+            # Clean title and description text
+            df['title'] = df['title'].apply(lambda x: ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", x).split()))
+            df['description'] = df['description'].apply(lambda x: ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", x).split()))
+
+            # Get sentiments from title and description
+            df['title_polarity'] = df['title'].apply(lambda x: TextBlob(x).sentiment.polarity)
+            df['description_polarity'] = df['description'].apply(lambda x: TextBlob(x).sentiment.polarity)
             print(df.info(), df.head())
             print(f'SUCCESS: convert {key} from {S3BUCKETNAME} to dataframe')
+            
+            # Append pages together
+            df_all = df_all.append(df)
 
     else:
         logging.exception('')
@@ -58,5 +74,6 @@ except:
 
 # Final logging
 logging.exception('')
+print(df_all.info(), df.head())
 print(f'Start pull: {DATE_PULLED}')
 print(f'Query term: {QUERY_PULLED}')
