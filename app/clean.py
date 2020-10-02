@@ -72,6 +72,12 @@ except:
     quit()
 
 
+
+# Output to local for great expectations testing
+df_all.to_csv(f'./data/newsapi-pull-{DATE_PULLED}-{QUERY_PULLED}.tsv', index=False, sep='\t')
+
+
+
 # Final logging
 logging.exception('')
 print(df_all.info(), df.head())
