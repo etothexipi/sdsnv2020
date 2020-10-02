@@ -1,0 +1,6 @@
+config:
+  aws:region: us-east-1
+  sdsnv2020:NEWSAPI_KEY:
+    secure: AAABAM+rQ82iFi/c6i9EUP4sK0pQ9e9o3cY5YKp0VTuScK5KeOI7pcBlJJMw/DGQgfbbi8ePFWZHFscQtWNOnw==
+  sdsnv2020:region: us-east-1
+  sdsnv2020:securityGroup: sg-b3af928c

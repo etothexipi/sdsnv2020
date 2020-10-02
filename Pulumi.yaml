@@ -1,0 +1,6 @@
+name: sdsnv2020
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: Example pipeline deployment in AWS with Python
