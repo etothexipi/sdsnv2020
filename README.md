@@ -11,8 +11,7 @@ Create, provision, and version control AWS infrastructure to create data pipelin
             - use "default" vpc and default security group, don't need to create new one if personal use
             - 
     - Setup plumi, docker and docker-compose
-        - "```shell
-pip3 install --user visidata
+```pip3 install --user visidata
 curl -fsSL https://get.pulumi.com | sh
 sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
@@ -23,7 +22,7 @@ sudo apt install docker-ce -y
 sudo apt install docker-compose -y
 sudo addgroup --system docker
 sudo adduser $USER docker
-newgrp docker```"
+newgrp docker```
             - Local Laptop/Desktop
                 - 1) Setup newsapi dev account 
                     - https://newsapi.org/
@@ -148,8 +147,7 @@ newgrp docker```"
             - `cat Pulumi.dev.yaml`
         - This value will be called in our __main__.py pulumi build script and encrypted up until being injected into the infrastructure or containers
     - replace default __main__.py with backup from repo
-        - ```shell
-cp __main__.py.bak __main__.py```
+        - ```cp __main__.py.bak __main__.py```
     - add pulumi docker to pulumi virtual environment
         - `echo pulumi_docker >> requirements.txt`
         - `source venv/bin/activate`
