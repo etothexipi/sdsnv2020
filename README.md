@@ -22,7 +22,8 @@ sudo apt install docker-ce -y
 sudo apt install docker-compose -y
 sudo addgroup --system docker
 sudo adduser $USER docker
-newgrp docker```
+newgrp docker
+```
             - Local Laptop/Desktop
                 - 1) Setup newsapi dev account 
                     - https://newsapi.org/
@@ -223,11 +224,13 @@ newgrp docker```
             - Run docker container, manually passing environment variables that will be done automatically in pulumi
                 - Note we defined s3bucket and newsapi key in ~/.bashrc in Intro branch and configured aws credentials too
                     - run `cat ~/.aws/credentials` to copy your access keys from
-                - ```shell
+                - 
+```
 docker run --env S3BUCKETNAME=$S3BUCKETNAME \
 	--env AWS_ACCESS_KEY_ID=[your access key id] \
     --env AWS_SECRET_ACCESS_KEY=[your secret access key] \
-    --env NEWSAPI_KEY=$NEWSAPI_KEY```
+    --env NEWSAPI_KEY=$NEWSAPI_KEY
+```
             - If you need to debug python or run.sh be sure to rebuild container each time to apply. We don't use volume mounts cause it's too hard to keep track of what won't be mounted in ECS Fargate cluster. Unless you want to setup and EFS share drive and mount to ECS and your EC2.
         - Setup ECS roles for containers
             - iam
