@@ -11,7 +11,7 @@ Create, provision, and version control AWS infrastructure to manage data pipelin
         - Set region to N. Virginia (us-east-1) [top right]
     - 3) Provision free-tier EC2 insance
         - https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#LaunchInstanceWizard:
-        - Select Ubuntu Server 18.04 LTS (HVM), SSD Volume Type [64-bit (x86)]
+        - Select Ubuntu Server 20.04 LTS (HVM), SSD Volume Type [64-bit (x86)]
         - Select t2.micro for free or other size depending on your budget/needs
             - For the Intermediate and Advanced Branch we'll need at least a t2.medium
         - Go to 4. Add Storage
