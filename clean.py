@@ -76,6 +76,10 @@ except:
 df_all.to_csv(f'./newsapi-pull-{DATE_PULLED}-{QUERY_PULLED}.csv', index=False)
 
 
+# Output to s3 for storage
+df_all.to_csv(f's3://{S3BUCKETNAME}/newsapi/clean/{DATE_PULLED}-{QUERY_PULLED}.csv', index=False)
+
+
 
 # Final logging
 logging.exception('')
