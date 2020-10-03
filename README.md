@@ -1,63 +1,248 @@
 # sdsnv2020
-Create, provision, and version control AWS infrastructure to manage data pipelines effectively
+Create, provision, and version control AWS infrastructure to create data pipelines 
 
-### Server Setup 
-#### Amazon Linux 2 EC2 (ami-0323c3dd2da7fb37d)
-Install git
-> `sudo yum install git`
-
-Install python3
-> `sudo yum install python3.x86_64`
-
-Install visidata (awesome tabular data tool for terminal)
-> `pip3 install --user visidata`
-
-Install apache webserver
-> `sudo yum install mod_wsgi.x86_64`
-
-Install Docker 
-> `sudo yum install docker.x86_64`
-
-Pull/clone this repo
-> `git clone https://github.com/etothexipi/sdsnv2020`
-
-Install Pulumi and venv in repo root. 
-> `curl -fsSL https://get.pulumi.com | sh`
-
-> `cd ./sdsnv2020/`
-
-> `python3 -m venv venv/`
-
-> `source venv/bin/activate`
-
-> `pip install -r requirements.txt`
-
-> `deactivate`
-
- Setup aws config 
-> `aws configure`
-
-(development) Setup JupyterLab server for wrangling and exploratory analysis
-> `sudo yum install gcc python-devel`
-
-> `pip3 install --user jupyterlab`
-
-> see: https://docs.aws.amazon.com/dlami/latest/devguide/setup-jupyter-config.html for remaining steps
-
-(development) Running Docker daemon and give permission to Pulumi (ec2-user)
-> `sudo dockerd &`
-
-> `sudo setfacl --modify user:ec2-user:rw /var/run/docker.sock`
-
-(development) Setup virtual environment within each project folder for local development. Simulates pip install inside container.
-> `python3 -m venv venv/`
-
-> `source venv/bin/activate`
-
-> `pip install -r requirements.txt`
-
-> `deactivate`
-
-(development) Run/Update Pulumi stack, build/update containers, etc.
-> `pulumi up`
-
+### SDSNV2020 Intermediate Branch
+    - Go to EC2 dashboard -> select instance -> actions -> image -> create image
+    - select new AMI from banner pop-up or from Images on left menu
+        - create new instance from AMI
+            - Need at least 4GB ram, choose desired. 
+                - Note: stopping an instance stops incurring cost but it will change the DNS upon start which is kind of annoying
+            - use "default" vpc and default security group, don't need to create new one if personal use
+            - 
+    - Setup plumi, docker and docker-compose
+```pip3 install --user visidata
+curl -fsSL https://get.pulumi.com | sh
+sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+sudo apt update -y
+apt-cache policy docker-ce
+sudo apt install docker-ce -y
+sudo apt install docker-compose -y
+sudo addgroup --system docker
+sudo adduser $USER docker
+newgrp docker
+```
+    - Local Laptop/Desktop
+	- 1) Setup newsapi dev account 
+	    - https://newsapi.org/
+	    - Get API Key
+	- 2) Setup AWS free-tier account
+	    - https://aws.amazon.com/free/
+	    - sign in to console
+	    - Set region to N. Virginia (us-east-1) [top right]
+	- 3) Provision free-tier EC2 insance
+	    - https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#LaunchInstanceWizard:
+	    - Select Ubuntu Server 18.04 LTS (HVM), SSD Volume Type [64-bit (x86)]
+	    - Select t2.micro for free or other size depending on your budget/needs
+		- For the Intermediate and Advanced Branch we'll need at least a t2.medium
+	    - Go to 4. Add Storage
+		- Increase size to 30GB to stay on free tier
+	    - Go to 6. Configure Security Group
+		- Add rule for port range 8080-8888 
+		- Choose My IP as source for increased security
+	    - Review and Launch
+	    - Create new key pair -> Download it
+	    - Launch Instance
+	- 4) Create S3 bucket
+	    - Services -> S3 -> Create bucket
+	    - Bucket Name = sdsnv2020-[yourcustomname]-intro
+		- We'll use this naming convention later when building from code in Pulumi
+	    - Region = US East (N. Virginia)
+	    - Use all default settings Next->Next->Create
+	- 5) SSH/PuTTY into EC2 instance
+	    - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstances.html
+	    - When connecting from Windows laptop/desktop (see above guide for Mac/Linux laptops)
+		- install PuTTY http://www.chiark.greenend.org.uk/~sgtatham/putty/
+		- convert your .pem key in step 3) to .ppk using PuTTYgen
+		    - Open PuTTYgen (Key Generator)
+			- Load [yourkeyname].pem
+			- Save private key (without passphrase)
+			    - Call it [yourkeyname].ppk
+			- Close
+	    - Go to AWS EC2 Consoler -> Instances -> select your instance
+		- Copy Public IPv4 DNS
+	    - Open PuTTY
+		- For Host Name = ubuntu@[paste IPv4 DNS] like..
+		    - ubuntu@ec2-54-132-52-156.compute-1.amazonaws.com
+		- On left go to Connection
+		    - Set "Second between keepalives" to 60
+		- On left go to Connection -> SSH -> Auth
+		    - Private key file for authentication = [pathtoyourkey]\[yourkeyname].ppk
+		- Go back to Session [top left of Category:]
+		- Name your Saved Sessions something -> click Save -> Open -> Yes (about fingerprint)
+    - EC2 Instance
+	- 1) Install apt and python dependencies
+	    - sudo apt update -y
+	    - sudo apt install python3 -y
+	    - sudo apt install python3-pip -y
+	    - sudo apt install jq -y
+	    - sudo apt-get install python3-dev python3-venv python3-wheel -y
+	    - curl -fsSL https://get.pulumi.com | sh
+	    - sudo apt install awscli -y
+	- 2) Setup AWS CLI
+	    - Run:
+		- aws configure
+		    - enter Access Key and Secret Key (top right of AWS console -> [your account name] -> My Security Credentials -> Access keys -> Create Access Key -> Show Access Key)
+		    - Download to safe place
+		- Default region name: us-east-1
+		- Default output format: *blank*
+	- 3) Clone project repo and checkout "intro" branch
+	    - git clone https://github.com/etothexipi/sdsnv2020
+	    - cd sdsnv2020/
+	    - git checkout intro
+	- 5) Setup python virtual environment
+	    - (from sdsnv2020/ folder) run
+		- python3 -m venv venv/
+		- source venv/bin/activate
+		- pip install -r requirements.txt
+	- 6) Setup shell environment variables
+	    - nano ~/.bashrc (or use vi if you're hardcore)
+		- Add vars at bottom
+		- export S3BUCKETNAME=[your S3 bucket name] like...
+		    - export S3BUCKETNAME=sdsnv2020-etothexipi-intro
+		- export NEWSAPI_KEY=[your news api key]
+	    - In Intermediate and Advanced branches we'll pass this into the container automatically with Pulumi
+	    - Set basic options for python style (only if using vi editor)
+		- vi ~/.vimrc
+		    - colorscheme koehler
+		    - set tabstop=8 softtabstop=0 expandtab shiftwidth=2 smarttab
+	    - Run 
+		- exit
+	    - Then SSH back into ec2 to activate variables
+	- 7) Play with sample pipeline
+	    - cd ~/sdsnv2020/
+	    - python pull.py 
+	    - python clean.py 
+	    - ...
+	    - Note: we're passing in the git branch via $GIT_BRANCH variable so if your s3 bucket doesn't end in "-intro" then Pandas won't find it to write the csv
+	- 8) Setup cron to schedule pipelines
+	    - See https://crontab.guru/ for cron notation help
+	    - For every 10 minutes do
+		- */10 * * * * bash ~/sdsnv2020/run_pipeline.sh
+    - {{[[SDSNV2020]]}}  {{Resources}}
+	- https://github.com/codelucas/newspaper/
+	- https://pandas.pydata.org/docs/
+	- https://docs.greatexpectations.io/en/latest/intro.html
+	- 
+    - 
+- `cd sdsnv2020/`
+- `git checkout intermediate`
+- Note python code and requirements.txt moved to app/ subfolder. This is where it will be containerized and tested with it's own virtual environment
+- `pulumi new aws-python --force`
+- interactive menu use values
+    - project: sdsnv2020 
+    - stack name: dev
+    - region: us-east-1
+- Set stack region
+- `pulumi config set region us-east-1`
+- Set security group
+- If following along, make sure you're only using the default security group that comes with your VPC
+- `pulumi config set securityGroup [paste security group id like sg-b3af938c]`
+- Set aws account id (top-right drop-down in aws web console)
+- `pulumi config set account_id [your id no dashes] --secret`
+- Save and encrypt our api key in Pulumi
+- `pulumi config set NEWSAPI_KEY [paste key] --secret`
+- Check that it was created properly and encrypted
+    - `cat Pulumi.dev.yaml`
+- This value will be called in our __main__.py pulumi build script and encrypted up until being injected into the infrastructure or containers
+- replace default __main__.py with backup from repo
+- ```cp __main__.py.bak __main__.py```
+- add pulumi docker to pulumi virtual environment
+- `echo pulumi_docker >> requirements.txt`
+- `source venv/bin/activate`
+- `pip install -r requirements.txt`
+- `deactivate`
+- Note: the `pulumi up` command automatically activates the venv. Make sure the venv is deactivated before running `pulumi up` later
+- Setup great expectations locally (on ec2 instance)
+- Assume already created venv in app/ directory and installed requirements.txt
+- `cd ~/sdsnv2020/app/`
+- `source venv/bin/activate`
+- `great_expectations init`
+    - go through interactive menu
+	- configure datasource
+	    - 1. Files on a filesystem..
+	    - 1. Pandas
+	    - path to data 
+		- ./
+	    - data asset name
+		- local_csv
+	- Do not profile new expectations for data asset
+- Run intro script if don't have newsapi-pull-....csv data set in app/ folder
+    - `cd ~/sdsnv2020/app/`
+    - `bash run.sh`
+- Create great expectations suite
+    - `great_expectations suite scaffold sdsnv2020`
+	- Interactive options:
+	    - 1. choose from a list...
+	    - 1. newsapi-pull-2020...
+	    - name: sdsnv2020
+	- ctrl+c to shutdown jupyter notebook
+	- note: scaffolding automatically generates some expectations for us based on the data
+    - `deactivate`
+- Spin up local (on ec2 instance) containers for great expecations data_docs and editor notebook`
+    - `cd ~/sdsnv2020/app/great_expectations/`
+    - `docker-compose up --build`
+	- note: this will utilize docker-compose.yml and Dockerfile to build two containers
+	- in the ssh terminal, copy the jupyter notebook token in the url
+- In a browser open:
+- http://[your ec2 dns]:8888
+    - e.g. http://ec2-34-204-205-213.compute-1.amazonaws.com:8888/
+- enter token to sign in 
+    - Open the notebook -> work/uncommitted/scaffold_sdsnv2020.ipynb
+	- The editor notebook will allow you to profile and create tests (expectations) for your data interactively. 
+	- These notebooks are disposable.
+	    - To save your changes, execute a particular expectation in a notebook cell and be sure to run the last cell which saves them. 
+	    - To drop an expectation, do not run that cell and then execute the last cell
+    - In top/main cell in batch_kwargs replace
+	- `"path": "/home/ubuntu/sdsnv2020/app/great_expectations/../newsapi-pull-2020-10-02-cryptocurrency.csv"`
+	    - with
+	- `"path": "../newsapi-pull-2020-10-02-cryptocurrency.csv"`
+	- in same cell put '../' in the data context path like
+	    - context = ge.data_context.DataContext('../')
+    - proceed to create simple expectations
+	- open some new cells and use tab completion to look through expectations like:
+	    - `batch.expect_column_values_to_not_be_null(column='title_polarity')`
+	    - `batch.expect_column_values_to_be_between(column='description_polarity', min_value=-1.0, max_value=1.0)`
+	    - `batch.expect_column_values_to_be_of_type(column='title', type_='object')`
+	    - `batch.expect_column_[tab]....`
+	- This is a great way to explore and get to know your data while also creating machine and human readable tests
+	- execute final cell to save
+	    - if error about permissions, may need to quite docker-compose and delete local_site from main ssh terminal like
+		- `rm -r uncommitted/data_docs/local_site/`
+	    - then run 
+		- `source ~/sdsnv2020/app/venv/bin/activate`
+		- `great_expectations docs build`
+    - Check out data_docs website for human-readable results of the expectations
+	- `docker-compose up --build`
+	- http://[your ec2 dns]:80
+	    - e.g. http://ec2-34-204-205-213.compute-1.amazonaws.com:80/
+- go back to `cd ~/sdsnv2020/app/` and build the main container that we're gonna put into Fargate cluster
+    - `docker build ./`
+    - copy id if successfully built
+    - Run docker container, manually passing environment variables that will be done automatically in pulumi
+	- Note we defined s3bucket and newsapi key in ~/.bashrc in Intro branch and configured aws credentials too
+	    - run `cat ~/.aws/credentials` to copy your access keys from
+	
+```
+docker run --env S3BUCKETNAME=$S3BUCKETNAME \
+	--env AWS_ACCESS_KEY_ID=[your access key id] \
+    --env AWS_SECRET_ACCESS_KEY=[your secret access key] \
+    --env NEWSAPI_KEY=$NEWSAPI_KEY
+```
+- If you need to debug python or run.sh be sure to rebuild container each time to apply. We don't use volume mounts cause it's too hard to keep track of what won't be mounted in ECS Fargate cluster. Unless you want to setup and EFS share drive and mount to ECS and your EC2.
+    
+- Setup ECS roles for containers
+    - iam
+	- create role 'ecsTaskExecutionRole'  and attach
+	    - AmazonECSTaskExecutionRolePolicy
+	- create 'ecsEventsRole' and attach 
+	    - AmazonEC2ContainerServiceEventsRole
+	- create 'AWSECSTaskRole' and attach
+	    - SecretsManagerReadWrite
+	    - AWSLambdaFullAccess
+	    - AmazonEC2ContainerServiceFullAccess
+	- 
+- once complete, ready to deploy
+- run `pulumi up` from repo home directory `~/sdsnv2020/`
+        
