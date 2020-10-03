@@ -6,7 +6,6 @@ services:
       - 8888:8888
     volumes:
       - ./:/home/jovyan/work
-      - /home/ubuntu/sdsnv2020/:/home/jovyan/
   ge_data_docs:
     image: flashspys/nginx-static
     container_name: ge_data_docs

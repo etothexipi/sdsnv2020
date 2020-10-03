@@ -73,7 +73,7 @@ except:
 
 
 # Output to local for great expectations testing
-df_all.to_csv(f'./newsapi-pull-{DATE_PULLED}-{QUERY_PULLED}.csv', index=False)
+df_all.to_csv(f'./great_expectations/newsapi-pull-{DATE_PULLED}-{QUERY_PULLED}.csv', index=False)
 
 
 # Final logging
