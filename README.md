@@ -94,6 +94,7 @@ Create, provision, and version control AWS infrastructure to manage data pipelin
         - python clean.py 
         - ...
     - 8) Setup cron to schedule pipelines
+        - crontab -e
         - See https://crontab.guru/ for cron notation help
         - For every 10 minutes do
             - */10 * * * * bash ~/sdsnv2020/run.sh
