@@ -27,7 +27,7 @@ newgrp docker
 - `cd sdsnv2020/`
 - `git checkout intermediate`
 - Note python code and requirements.txt moved to app/ subfolder. This is where it will be containerized and tested with it's own virtual environment
-- `pulumi new aws-python --force`
+- `pulumi login`
 - interactive menu use values
     - project: sdsnv2020 
     - stack name: dev
@@ -44,10 +44,10 @@ newgrp docker
 - Check that it was created properly and encrypted
     - `cat Pulumi.dev.yaml`
 - This value will be called in our __main__.py pulumi build script and encrypted up until being injected into the infrastructure or containers
-- replace default __main__.py with backup from repo
+- May need to replace default __main__.py with backup from repo
 - ```cp __main__.py.bak __main__.py```
-- add pulumi docker to pulumi virtual environment
-- `echo pulumi_docker >> requirements.txt`
+- Setup venv for pulumi to run in. requirements.txt already has installs you need
+- `python3 -m venv venv/`
 - `source venv/bin/activate`
 - `pip install -r requirements.txt`
 - `deactivate`
