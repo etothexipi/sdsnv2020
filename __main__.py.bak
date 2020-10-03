@@ -10,6 +10,7 @@ stack = pulumi.get_stack()
 project = pulumi.get_project()
 project_stack = f'{project}-{stack}'
 region = config.require('region')
+account_id = config.require('account_id')
 
 
 # Get network info from config
@@ -77,12 +78,12 @@ image = docker.Image(project_stack,
 # Create container and task
 task = aws.ecs.TaskDefinition(project_stack,
     cpu='256',
-    execution_role_arn='arn:aws:iam::370076501934:role/ecsTaskExecutionRole',
+    execution_role_arn=f'arn:aws:iam::{account_id}:role/ecsTaskExecutionRole',
     family=project_stack,
     memory='512',
     network_mode='awsvpc',
     requires_compatibilities=['FARGATE'],
-    task_role_arn='arn:aws:iam::370076501934:role/AWSECSTaskRole',
+    task_role_arn=f'arn:aws:iam::{account_id}:role/AWSECSTaskRole',
     container_definitions=pulumi.Output.all(image.image_name, bucket.id).apply(
         lambda args: json.dumps([{
             'command': ['bash', 'run.sh'],
@@ -116,7 +117,7 @@ cluster = aws.ecs.Cluster(project_stack,
 # Schedule tasks
 event_rule = aws.cloudwatch.EventRule(project_stack,
     schedule_expression='rate(5 minutes)',
-    role_arn='arn:aws:iam::370076501934:role/ecsTaskExecutionRole',
+    role_arn=f'arn:aws:iam::{account_id}:role/ecsTaskExecutionRole',
     is_enabled=True,
     tags={'group': 'sdsnv2020', 'stack': stack},
 )
@@ -132,7 +133,7 @@ event_target = aws.cloudwatch.EventTarget(project_stack,
             'AssignPublicIp': True
         }
     },
-    role_arn='arn:aws:iam::370076501934:role/ecsEventsRole',
+    role_arn=f'arn:aws:iam::{account_id}:role/ecsEventsRole',
     rule=event_rule.name,
 )
 
