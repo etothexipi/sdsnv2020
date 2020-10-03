@@ -1,0 +1,21 @@
+{
+  "data_asset_type": null,
+  "expectation_suite_name": "sdsnv2020",
+  "expectations": [],
+  "meta": {
+    "citations": [
+      {
+        "batch_kwargs": {
+          "data_asset_name": "newsapi-pull-2020-10-02-cryptocurrency",
+          "datasource": "local_csv",
+          "path": "/home/ubuntu/sdsnv2020/app/great_expectations/../newsapi-pull-2020-10-02-cryptocurrency.csv"
+        },
+        "batch_markers": null,
+        "batch_parameters": null,
+        "citation_date": "20201003T020945.264338Z",
+        "comment": "New suite added via CLI"
+      }
+    ],
+    "great_expectations_version": "0.12.3"
+  }
+}

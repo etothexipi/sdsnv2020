@@ -13,17 +13,7 @@ config_version: 2.0
 # Datasources tell Great Expectations where your data lives and how to get it.
 # You can use the CLI command `great_expectations datasource new` to help you
 # add a new datasource. Read more at https://docs.greatexpectations.io/en/latest/reference/core_concepts/datasource_reference.html
-datasources:
-  local_csv:
-    class_name: PandasDatasource
-    batch_kwargs_generators:
-      subdir_reader:
-        class_name: SubdirReaderBatchKwargsGenerator
-        base_directory: ../
-    data_asset_type:
-      class_name: PandasDataset
-      module_name: great_expectations.dataset
-    module_name: great_expectations.datasource
+datasources: {}
 
 # This config file supports variable substitution which enables: 1) keeping
 # secrets out of source control & 2) environment-based configuration changes
@@ -124,6 +114,6 @@ data_docs_sites:
       class_name: DefaultSiteIndexBuilder
 
 anonymous_usage_statistics:
-  data_context_id: d05a0bd1-04bb-4268-8d5e-f767e99c4a30
   enabled: true
+  data_context_id: 9a255de8-1e05-438e-a134-dfb809453bbb
 notebooks:

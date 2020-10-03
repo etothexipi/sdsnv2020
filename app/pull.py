@@ -33,8 +33,8 @@ else:
 
 
 
-# Get up to 100 pages of results for keyword by relevancy
-for PAGEPULL in range(1,101):
+# Get up to 5 pages of results for keyword by relevancy
+for PAGEPULL in range(1,6):
     news_pull = newsapi.get_everything(
         q=QUERY_PULLED,
         from_param=DATE_PULLED,

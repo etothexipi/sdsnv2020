@@ -32,7 +32,7 @@ else:
 
 # Get raw data from pull.py output
 try:
-    response = s3.list_objects_v2(Bucket=S3BUCKETNAME, MaxKeys=1000, Prefix=f'newsapi/pull/{DATE_PULLED}/{QUERY_PULLED}-')
+    response = s3.list_objects_v2(Bucket=S3BUCKETNAME, MaxKeys=5, Prefix=f'newsapi/pull/{DATE_PULLED}/{QUERY_PULLED}-')
 
     if response['ResponseMetadata']['HTTPStatusCode'] == 200 and response['KeyCount'] > 0:
         
@@ -50,12 +50,12 @@ try:
             df = df[['title','description','publishedAt']]
 
             # Clean title and description text
-            df['title'] = df['title'].apply(lambda x: ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", x).split()))
-            df['description'] = df['description'].apply(lambda x: ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", x).split()))
+            df['title'] = df['title'].apply(lambda arg: ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", str(arg)).split()))
+            df['description'] = df['description'].apply(lambda arg: ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", str(arg)).split()))
 
             # Get sentiments from title and description
-            df['title_polarity'] = df['title'].apply(lambda x: TextBlob(x).sentiment.polarity)
-            df['description_polarity'] = df['description'].apply(lambda x: TextBlob(x).sentiment.polarity)
+            df['title_polarity'] = df['title'].apply(lambda arg: TextBlob(arg).sentiment.polarity)
+            df['description_polarity'] = df['description'].apply(lambda arg: TextBlob(arg).sentiment.polarity)
             print(df.info(), df.head())
             print(f'SUCCESS: convert {key} from {S3BUCKETNAME} to dataframe')
             
@@ -72,14 +72,10 @@ except:
     quit()
 
 
-
 # Output to local for great expectations testing
-df_all.to_csv(f'./data/newsapi-pull-{DATE_PULLED}-{QUERY_PULLED}.tsv', index=False, sep='\t')
-
+df_all.to_csv(f'./newsapi-pull-{DATE_PULLED}-{QUERY_PULLED}.csv', index=False)
 
 
 # Final logging
 logging.exception('')
-print(df_all.info(), df.head())
-print(f'Start pull: {DATE_PULLED}')
-print(f'Query term: {QUERY_PULLED}')
+print(df_all.info(), df_all.head())
