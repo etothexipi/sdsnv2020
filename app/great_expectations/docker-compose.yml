@@ -1,0 +1,15 @@
+version: '3.7'
+services:
+  notebook:
+    build: .
+    ports:
+      - 8888:8888
+    volumes:
+      - ./:/home/jovyan/work
+  ge_data_docs:
+    image: flashspys/nginx-static
+    container_name: ge_data_docs
+    ports:
+      - 80:80
+    volumes:
+      - ./uncommitted/data_docs/local_site:/static
