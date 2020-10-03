@@ -50,8 +50,8 @@ try:
             df = df[['title','description','publishedAt']]
 
             # Clean title and description text
-            df['title'] = df['title'].apply(lambda x: ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", x).split()))
-            df['description'] = df['description'].apply(lambda x: ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", x).split()))
+            df['title'] = df['title'].apply(lambda x: ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", str(x)).split()))
+            df['description'] = df['description'].apply(lambda x: ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", str(x)).split()))
 
             # Get sentiments from title and description
             df['title_polarity'] = df['title'].apply(lambda x: TextBlob(x).sentiment.polarity)
@@ -70,6 +70,11 @@ except:
     logging.exception('')
     print(response)
     quit()
+
+
+# Output to local for great expectations testing
+df_all.to_csv(f'./newsapi-pull-{DATE_PULLED}-{QUERY_PULLED}.csv', index=False)
+
 
 
 # Final logging
