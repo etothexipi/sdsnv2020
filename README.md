@@ -8,4 +8,4 @@ NOTES:
 
 Please fork this repository. Do not clone and push changes. 
 
-Once forked to AWS EC2 instance, use `git checkout <branch-name>` to switch to beginner, intermediate, etc. branches
+Once forked to AWS EC2 instance, use `git checkout <branch-name>` to switch to intro, intermediate, and other branches.
